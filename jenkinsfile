@@ -1,41 +1,65 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Install dependencies') {
             steps {
                 sh 'npm install'
             }
         }
-        
+
         stage('Unit Test') {
             steps {
                 sh 'node -v'
             }
         }
-        
+
         stage('Build application') {
             steps {
                 sh 'npm run build'
             }
         }
 
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         script {
-        //             def scannerHome = tool 'scanner'
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'scanner'
 
-        //             withSonarQubeEnv {
-        //                 sh "${scannerHome}/bin/sonar-scanner"
-        //             }
-        //         }
-        //     }
-        // }
+                    withSonarQubeEnv {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
 
         stage('Building images (node and mongo)') {
             steps {
                 script {
                     sh 'docker-compose build'
+                }
+            }
+        }
+
+        stage('Deploy Nexus') {
+            steps {
+                script {
+                    sh 'docker run -d --name nexus sonatype/nexus3'
+                }
+            }
+        }
+
+        stage('Deploy Prometheus') {
+            steps {
+                script {
+                    sh 'docker run -d --name prometheus prom/prometheus'
+                }
+            }
+        }
+
+        stage('Deploy Grafana') {
+            steps {
+                script {
+                    sh 'docker run -d --name grafana grafana/grafana'
                 }
             }
         }
