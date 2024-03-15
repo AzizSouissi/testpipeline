@@ -6,6 +6,7 @@ import { AllowancesModule } from './allowances/allowances.module';
 import { DeductionsModule } from './deductions/deductions.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AttendanceTrackingModule } from './attendance-tracking/attendance-tracking.module';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { AttendanceTrackingModule } from './attendance-tracking/attendance-track
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
