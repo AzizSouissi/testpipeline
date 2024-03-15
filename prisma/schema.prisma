@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  firstName        String
+  lastName         String
+  salary           Int
+  offDays          Int
+  payrolls         Payroll[]
+  attendanceRecord AttendanceRecord[]
+  projectIDs       String[]           @db.ObjectId
+  projects         Project[]          @relation(fields: [projectIDs], references: [id])
+  roleId           String?            @db.ObjectId
+  role             Role?              @relation(fields: [roleId], references: [id])
+  tickets          Ticket[]
+}
+
+model Payroll {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  employee    Employee     @relation(fields: [employeeId], references: [id])
+  employeeId  String       @db.ObjectId
+  month       DateTime
+  basicSalary Int
+  allowances  Allowances[]
+  deductions  Deductions[]
+  netSalary   Int
+}
+
+model Allowances {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  payroll   Payroll @relation(fields: [payrollId], references: [id])
+  payrollId String  @db.ObjectId
+  bonus     Int
+  overtime  Int
+}
+
+model Deductions {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  payroll   Payroll @relation(fields: [payrollId], references: [id])
+  payrollId String  @db.ObjectId
+  tax       Int
+  insurance Int
+}
+
+model AttendanceRecord {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  date         DateTime
+  shiftType    ShiftType
+  status       Status
+  absentReason String?
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  employeeId   String    @db.ObjectId
+  attendanceId String?   @db.ObjectId
+}
+
+model Ticket {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime     @default(now())
+  createdBy   String
+  description String
+  status      TicketStatus @default(OPEN)
+  employee    Employee     @relation(fields: [employeeId], references: [id])
+  employeeId  String       @db.ObjectId
+}
+
+model Project {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  employeeIDs String[]      @db.ObjectId
+  employees   Employee[]    @relation(fields: [employeeIDs], references: [id])
+  status      ProjectStatus
+}
+
+model Role {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  employees Employee[]
+}
+
+enum Status {
+  PRESENT
+  ABSENT
+}
+
+enum ShiftType {
+  FULL_DAY
+  HALF_DAY
+  QUARTER_SHIFT
+}
+
+enum TicketStatus {
+  OPEN
+  CLOSED
+}
+
+enum ProjectStatus {
+  ACTIVE
+  INACTIVE
+  COMPLETED
+}
