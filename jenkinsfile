@@ -10,7 +10,7 @@ pipeline {
         
         stage('Unit Test') {
             steps {
-                //sh 'npm test'
+                sh 'node -v'
             }
         }
         
