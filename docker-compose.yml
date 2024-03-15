@@ -11,11 +11,10 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - ./data/dump:/dump
+      - mongo-data:/data/db
 
   app:
-    build:
-      image: 192.168.33.10:8083/nodemongoapp:6.0
+    image: 192.168.33.10:8083/nodemongoapp:6.0
     restart: always
     container_name: back
     ports:
